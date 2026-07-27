@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Магазин</title>
-</head>
-<body>
+{% extends 'shop/base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
     <h1>Наши категории</h1>
     <ul>
         {% for category in categories %}
@@ -16,5 +15,4 @@
             <li>Категорий пока нет</li>
         {% endfor %}
     </ul>
-</body>
-</html>
+{% endblock %}

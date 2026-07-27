@@ -1,14 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ category.name }}</title>
-</head>
-<body>
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
     <a href="{% url 'product_list' %}">← Назад к категориям</a>
     <h1>{{ category.name }}</h1>
     <div style="display: flex; flex-wrap: wrap; gap: 20px;">
         {% for product in products %}
-            <div style="border: 1px solid #ddd; padding: 15px; width: 250px;">
+            <div style="border: 1px solid #ddd; padding: 15px; width: 250px; background: white;">
                 {% if product.image %}
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 200px; object-fit: cover;">
                 {% endif %}
@@ -18,10 +17,10 @@
                     </a>
                 </h3>
                 <p>Цена: {{ product.price }} usd.</p>
+                <a href="{% url 'add_to_cart' product.slug %}">🛒 Добавить в корзину</a>
             </div>
         {% empty %}
             <p>В этой категории пока нет товаров</p>
         {% endfor %}
     </div>
-</body>
-</html>
+{% endblock %}

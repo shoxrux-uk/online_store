@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ product.name }}</title>
-</head>
-<body>
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
     <a href="{% url 'category_detail' product.category.slug %}">← Назад к категории</a>
     
     <h1>{{ product.name }}</h1>
@@ -16,5 +15,10 @@
     <p><strong>Описание:</strong> {{ product.description }}</p>
     <p><strong>Категория:</strong> {{ product.category.name }}</p>
     <p><strong>В наличии:</strong> {% if product.in_stock %} Да ✅ {% else %} Нет ❌ {% endif %}</p>
-</body>
-</html>
+
+    <a href="{% url 'add_to_cart' product.slug %}">
+        <button>🛒 Добавить в корзину</button>
+    </a>
+    <br><br>
+    <a href="{% url 'cart_view' %}">🛍️ Перейти в корзину</a>
+{% endblock %}
