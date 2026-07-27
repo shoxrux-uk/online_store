@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ category.name }}</title>
+</head>
+<body>
+    <a href="{% url 'product_list' %}">← Назад к категориям</a>
+    <h1>{{ category.name }}</h1>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        {% for product in products %}
+            <div style="border: 1px solid #ddd; padding: 15px; width: 250px;">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                {% endif %}
+                <h3>
+                    <a href="{% url 'product_detail' product.slug %}">
+                        {{ product.name }}
+                    </a>
+                </h3>
+                <p>Цена: {{ product.price }} usd.</p>
+            </div>
+        {% empty %}
+            <p>В этой категории пока нет товаров</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
