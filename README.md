@@ -6,5 +6,5 @@
 
 1. Склонируй репозиторий:
 ```bash
-git clone https://github.com/ТВОЙ_ЛОГИН/online_store.git
+git clone https://github.com/shoxrux-uk/online_store.git
 cd online_store
