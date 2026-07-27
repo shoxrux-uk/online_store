@@ -29,6 +29,7 @@ class Product(models.Model):
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
+
 class Cart(models.Model):
     session_key = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -38,6 +39,7 @@ class Cart(models.Model):
 
     def total_price(self):
         return sum(item.total_price() for item in self.items.all())
+
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
@@ -49,3 +51,34 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
+
+
+class Order(models.Model):
+    full_name = models.CharField(max_length=200, verbose_name='ФИО')
+    address = models.TextField(verbose_name='Адрес')
+    phone = models.CharField(max_length=20, verbose_name='Телефон')
+    email = models.EmailField(blank=True, null=True, verbose_name='Email')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Итого')
+    is_completed = models.BooleanField(default=False, verbose_name='Завершён')
+
+    def __str__(self):
+        return f"Заказ #{self.id} - {self.full_name}"
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE, verbose_name='Заказ')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
+
+    def __str__(self):
+        return f"{self.product.name} x {self.quantity}"
+
+    class Meta:
+        verbose_name = 'Товар в заказе'
+        verbose_name_plural = 'Товары в заказе'

@@ -42,6 +42,10 @@
     <header>
         <div>
             <a href="{% url 'product_list' %}">🏠 Главная</a>
+            <form action="{% url 'search' %}" method="get" style="display: inline; margin-left: 15px;">
+                <input type="text" name="q" placeholder="🔍 Поиск товаров..." style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                <button type="submit" style="background: #ff6600; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">Найти</button>
+            </form>
         </div>
         <div>
             <a href="{% url 'cart_view' %}" class="cart-icon">

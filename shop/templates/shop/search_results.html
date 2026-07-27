@@ -1,0 +1,31 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Поиск: {{ query }}{% endblock %}
+
+{% block content %}
+    <h1>🔍 Результаты поиска: "{{ query }}"</h1>
+
+    {% if products %}
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+            {% for product in products %}
+                <div style="border: 1px solid #ddd; padding: 15px; width: 250px; background: white;">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <h3>
+                        <a href="{% url 'product_detail' product.slug %}">
+                            {{ product.name }}
+                        </a>
+                    </h3>
+                    <p>Цена: {{ product.price }} usd.</p>
+                    <a href="{% url 'add_to_cart' product.slug %}">🛒 Добавить в корзину</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>😕 По вашему запросу ничего не найдено.</p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'product_list' %}">← Вернуться на главную</a>
+{% endblock %}

@@ -9,7 +9,13 @@
         <ul>
         {% for item in cart.items.all %}
             <li>
-                {{ item.product.name }} x {{ item.quantity }} = {{ item.total_price }} usd.
+                {{ item.product.name }} 
+                x {{ item.quantity }} = {{ item.total_price }} usd.
+                
+                <a href="{% url 'update_cart' item.id 'decrease' %}">➖</a>
+                <a href="{% url 'update_cart' item.id 'increase' %}">➕</a>
+                
+                <a href="{% url 'remove_from_cart' item.id %}" style="color: red; margin-left: 10px;">🗑️ Удалить</a>
             </li>
         {% endfor %}
         </ul>
@@ -19,4 +25,11 @@
     {% endif %}
 
     <a href="{% url 'product_list' %}">Продолжить покупки</a>
+<br>
+<a href="{% url 'checkout' %}">
+    <button style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+        ✅ Оформить заказ
+    </button>
+</a>
+
 {% endblock %}
