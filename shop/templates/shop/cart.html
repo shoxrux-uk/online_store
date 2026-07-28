@@ -9,7 +9,8 @@
         <ul>
         {% for item in cart.items.all %}
             <li>
-                {{ item.product.name }} 
+                {{ item.product.name }}
+                {% if item.color %} ({{ item.color.name }}) {% endif %}
                 x {{ item.quantity }} = {{ item.total_price }} usd.
                 
                 <a href="{% url 'update_cart' item.id 'decrease' %}">➖</a>
@@ -19,17 +20,18 @@
             </li>
         {% endfor %}
         </ul>
+        
         <p><strong>Итого:</strong> {{ cart.total_price }} usd.</p>
+        
+        <a href="{% url 'checkout' %}">
+            <button style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+                ✅ Оформить заказ
+            </button>
+        </a>
     {% else %}
         <p>Корзина пуста</p>
     {% endif %}
 
+    <br>
     <a href="{% url 'product_list' %}">Продолжить покупки</a>
-<br>
-<a href="{% url 'checkout' %}">
-    <button style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-        ✅ Оформить заказ
-    </button>
-</a>
-
 {% endblock %}

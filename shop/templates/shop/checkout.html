@@ -8,19 +8,195 @@
     <h3>Ваш заказ:</h3>
     <ul>
         {% for item in cart.items.all %}
-            <li>{{ item.product.name }} x {{ item.quantity }} = {{ item.total_price }} usd.</li>
+            <li>
+                {{ item.product.name }}
+                {% if item.color %} ({{ item.color.name }}) {% endif %}
+                x {{ item.quantity }} = {{ item.total_price }} usd.
+            </li>
         {% endfor %}
     </ul>
-    <p><strong>Итого:</strong> {{ cart.total_price }} usd.</p>
+    
+    <!-- ПРОМОКОД -->
+    <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+        <h4>🎟️ Промокод</h4>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="promo-input" placeholder="Введите промокод" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px; flex: 1;">
+            <button id="promo-btn" style="background: #ff6600; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer;">Активировать</button>
+        </div>
+        <div id="promo-message" style="margin-top: 10px; font-weight: bold;"></div>
+    </div>
+
+    <p id="total-display"><strong>Итого:</strong> <span id="total-amount">{{ cart.total_price }}</span> usd.</p>
 
     <hr>
 
-    <form method="post">
+    <form method="post" id="order-form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">✅ Оформить заказ</button>
+        
+        <div style="margin-bottom: 15px;">
+            <label>ФИО:</label><br>
+            {{ form.full_name }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Адрес:</label><br>
+            {{ form.address }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Телефон:</label><br>
+            {{ form.phone }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Email:</label><br>
+            {{ form.email }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label><strong>Способ оплаты:</strong></label><br>
+            {{ form.payment_method }}
+        </div>
+        
+        <!-- Блок для карты -->
+        <div id="card-block" style="display: none; margin-bottom: 15px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+            <h4>💳 Данные карты</h4>
+            <div style="margin-bottom: 10px;">
+                <label>Номер карты:</label><br>
+                {{ form.card_number }}
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Срок действия (MM/YY):</label><br>
+                {{ form.card_expiry }}
+            </div>
+        </div>
+        
+        <!-- Блок для рассрочки -->
+        <div id="installment-block" style="display: none; margin-bottom: 15px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+            <h4>📱 Выберите срок рассрочки:</h4>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                <button type="button" class="installment-btn" data-months="3" style="padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 16px;">
+                    3 месяца
+                </button>
+                <button type="button" class="installment-btn" data-months="6" style="padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 16px;">
+                    6 месяцев
+                </button>
+                <button type="button" class="installment-btn" data-months="12" style="padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 16px;">
+                    12 месяцев
+                </button>
+                <button type="button" class="installment-btn" data-months="24" style="padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 16px;">
+                    24 месяца
+                </button>
+            </div>
+            <div id="selected-installment" style="margin-top: 10px; font-weight: bold; color: #28a745;"></div>
+            <input type="hidden" name="installment_months" id="installment-months-field" value="">
+        </div>
+        
+        <!-- Скрытое поле для промокода -->
+        <input type="hidden" name="promo_code" id="promo-code-field" value="">
+        
+        <button type="submit" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+            ✅ Оформить заказ
+        </button>
     </form>
 
     <br>
     <a href="{% url 'cart_view' %}">← Назад к корзине</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Показ/скрытие полей для карты и рассрочки
+            const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+            const cardBlock = document.getElementById('card-block');
+            const installmentBlock = document.getElementById('installment-block');
+            
+            function toggleFields() {
+                let selected = document.querySelector('input[name="payment_method"]:checked');
+                if (selected) {
+                    if (selected.value === 'card') {
+                        cardBlock.style.display = 'block';
+                        installmentBlock.style.display = 'none';
+                    } else if (selected.value === 'installment') {
+                        cardBlock.style.display = 'none';
+                        installmentBlock.style.display = 'block';
+                    } else {
+                        cardBlock.style.display = 'none';
+                        installmentBlock.style.display = 'none';
+                    }
+                }
+            }
+            
+            paymentRadios.forEach(radio => {
+                radio.addEventListener('change', toggleFields);
+            });
+            
+            toggleFields();
+
+            // Логика промокода
+            const promoBtn = document.getElementById('promo-btn');
+            const promoInput = document.getElementById('promo-input');
+            const promoMessage = document.getElementById('promo-message');
+            const totalSpan = document.getElementById('total-amount');
+            const promoCodeField = document.getElementById('promo-code-field');
+            
+            if (promoBtn) {
+                promoBtn.addEventListener('click', function() {
+                    const code = promoInput.value.trim();
+                    if (!code) {
+                        promoMessage.textContent = '❌ Введите промокод';
+                        promoMessage.style.color = 'red';
+                        return;
+                    }
+                    
+                    const currentTotal = parseFloat(totalSpan.textContent);
+                    
+                    fetch('/check-promo/?code=' + encodeURIComponent(code) + '&total=' + currentTotal)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.valid) {
+                                promoMessage.textContent = data.message;
+                                promoMessage.style.color = 'green';
+                                totalSpan.textContent = data.new_total;
+                                if (promoCodeField) {
+                                    promoCodeField.value = code;
+                                }
+                            } else {
+                                promoMessage.textContent = data.message;
+                                promoMessage.style.color = 'red';
+                                if (promoCodeField) {
+                                    promoCodeField.value = '';
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            promoMessage.textContent = '❌ Ошибка при проверке промокода';
+                            promoMessage.style.color = 'red';
+                            console.error('Error:', error);
+                        });
+                });
+            }
+
+            // Логика для кнопок рассрочки
+            const installmentButtons = document.querySelectorAll('.installment-btn');
+            const selectedInstallmentDiv = document.getElementById('selected-installment');
+            const installmentField = document.getElementById('installment-months-field');
+            
+            installmentButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const months = this.getAttribute('data-months');
+                    
+                    installmentButtons.forEach(btn => {
+                        btn.style.borderColor = '#ddd';
+                        btn.style.background = 'white';
+                    });
+                    
+                    this.style.borderColor = '#28a745';
+                    this.style.background = '#e8f5e9';
+                    
+                    selectedInstallmentDiv.textContent = '✅ Вы выбрали ' + months + ' месяцев';
+                    installmentField.value = months;
+                });
+            });
+        });
+    </script>
 {% endblock %}

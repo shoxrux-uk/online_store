@@ -3,16 +3,58 @@
 {% block title %}Главная{% endblock %}
 
 {% block content %}
-    <h1>Наши категории</h1>
-    <ul>
+    <!-- ПРИВЕТСТВИЕ -->
+    <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white; margin-bottom: 30px;">
+        <h1 style="font-size: 36px; margin: 0;">🛍️ Добро пожаловать в наш магазин!</h1>
+        <p style="font-size: 18px; margin: 10px 0 0;">Лучшие товары по лучшим ценам</p>
+    </div>
+
+    <!-- ПОИСК -->
+    <div style="max-width: 600px; margin: 0 auto 30px;">
+        <form action="{% url 'search' %}" method="get" style="display: flex; gap: 10px;">
+            <input type="text" name="q" placeholder="🔍 Поиск товаров..." style="flex: 1; padding: 12px 20px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px;">
+            <button type="submit" style="background: #ff6600; color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-size: 16px; white-space: nowrap;">
+                Найти
+            </button>
+        </form>
+    </div>
+
+    <!-- КАТЕГОРИИ -->
+    <h2 style="text-align: center; margin-bottom: 20px;">📂 Категории</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 40px;">
         {% for category in categories %}
-            <li>
-                <a href="{% url 'category_detail' category.slug %}">
-                    {{ category.name }}
-                </a>
-            </li>
+            <a href="{% url 'category_detail' category.slug %}" style="display: inline-block; background: #f0f0f0; padding: 12px 25px; border-radius: 25px; text-decoration: none; color: #333; font-weight: bold; transition: 0.3s; border: 2px solid transparent;">
+                {{ category.name }}
+            </a>
         {% empty %}
-            <li>Категорий пока нет</li>
+            <p>Категорий пока нет</p>
         {% endfor %}
-    </ul>
+    </div>
+
+    <!-- ТОВАРЫ -->
+    <h2 style="text-align: center; margin-bottom: 20px;">🛒 Все товары</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+        {% for product in products %}
+            <div style="border: 1px solid #ddd; padding: 15px; width: 250px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                {% else %}
+                    <div style="width: 100%; height: 200px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">Нет фото</div>
+                {% endif %}
+                <h3 style="font-size: 16px; margin: 10px 0 5px;">
+                    <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: #333;">
+                        {{ product.name }}
+                    </a>
+                </h3>
+                <p style="font-size: 18px; font-weight: bold; color: #ff6600; margin: 5px 0;">
+                    {{ product.price }} usd.
+                </p>
+                <a href="{% url 'product_detail' product.slug %}" style="display: inline-block; background: #ff6600; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 14px; width: 100%; text-align: center; box-sizing: border-box;">
+                    🛒 Добавить в корзину
+                </a>
+            </div>
+        {% empty %}
+            <p>Товаров пока нет</p>
+        {% endfor %}
+    </div>
 {% endblock %}

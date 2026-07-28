@@ -1,4 +1,4 @@
-from .models import Cart, CartItem, Product
+from .models import Cart, CartItem, Product, Color
 
 def get_cart(request):
     session_key = request.session.session_key
@@ -9,14 +9,28 @@ def get_cart(request):
     cart, created = Cart.objects.get_or_create(session_key=session_key)
     return cart
 
-def add_to_cart(request, product_slug):
+def add_to_cart(request, product_slug, color_id=None):
     product = Product.objects.get(slug=product_slug)
     cart = get_cart(request)
     
+    color = None
+    if color_id:
+        try:
+            color = Color.objects.get(id=color_id)
+        except Color.DoesNotExist:
+            pass
+    
+    # Если цвет не выбран, но у товара есть цвета — сохраняем первый доступный
+    if not color and product.colors.exists():
+        color = product.colors.first()
+    
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
-        product=product
+        product=product,
+        color=color,
+        defaults={'quantity': 1}
     )
+    
     if not created:
         cart_item.quantity += 1
         cart_item.save()
