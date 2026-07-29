@@ -3,20 +3,29 @@ from django.db.models import Q
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from .models import Category, Product, Cart, CartItem, Order, OrderItem, PromoCode, Color
 from .cart import get_cart, add_to_cart, remove_from_cart
 from .forms import OrderForm
 
 def product_list(request):
     categories = Category.objects.all()
+    products = Product.objects.filter(in_stock=True)
+    hits = Product.objects.filter(in_stock=True)[:3]
+    new = Product.objects.filter(in_stock=True).order_by('-created_at')[:3]
+    
     cart = get_cart(request)
     total_items = sum(item.quantity for item in cart.items.all())
-    products = Product.objects.filter(in_stock=True)  
-    return render(request, 'shop/product_list.html', {
+    
+    context = {
         'categories': categories,
         'products': products,
+        'hits': hits,
+        'new': new,
         'cart_count': total_items,
-    })
+    }
+    
+    return render(request, 'shop/product_list.html', context)
 
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
@@ -38,20 +47,23 @@ def product_detail(request, slug):
         'cart_count': total_items,
     })
 
+@login_required
 def add_to_cart_view(request, slug):
-    color_id = request.POST.get('color') or request.GET.get('color')
-    add_to_cart(request, slug, color_id)
+    add_to_cart(request, slug)
     return redirect('product_detail', slug=slug)
 
+@login_required
 def cart_view(request):
     cart = get_cart(request)
     return render(request, 'shop/cart.html', {'cart': cart})
 
+@login_required
 def remove_from_cart_view(request, item_id):
     cart_item = CartItem.objects.get(id=item_id)
     cart_item.delete()
     return redirect('cart_view')
 
+@login_required
 def update_cart_view(request, item_id, action):
     cart_item = CartItem.objects.get(id=item_id)
     
@@ -66,6 +78,7 @@ def update_cart_view(request, item_id, action):
     cart_item.save()
     return redirect('cart_view')
 
+@login_required
 def checkout_view(request):
     cart = get_cart(request)
     discount = 0

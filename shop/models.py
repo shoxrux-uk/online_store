@@ -3,7 +3,9 @@ from django.db import models
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название категории')
     slug = models.SlugField(max_length=100, unique=True, verbose_name='URL')
-
+    image = models.ImageField(upload_to='categories/', blank=True, null=True, verbose_name='Изображение') 
+    icon = models.CharField(max_length=50, blank=True, null=True, verbose_name='Иконка (эмодзи)') 
+    
     def __str__(self):
         return self.name
 

@@ -3,8 +3,9 @@ from .models import Category, Product, PromoCode, Color
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
+    list_display = ['name', 'slug', 'icon']
     prepopulated_fields = {'slug': ('name',)}
+    fields = ['name', 'slug', 'icon', 'image']
 
 @admin.register(Color)
 class ColorAdmin(admin.ModelAdmin):
