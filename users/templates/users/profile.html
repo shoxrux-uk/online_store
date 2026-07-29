@@ -1,0 +1,21 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+    <h2>Привет, {{ user.username }}!</h2>
+    <p>Email: {{ user.email }}</p>
+
+    <h3>Мои заказы</h3>
+    {% if orders %}
+        <ul>
+            {% for order in orders %}
+                <li>Заказ #{{ order.id }} — {{ order.created_at|date:"d.m.Y H:i" }} — {{ order.total_price }} usd.</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>У вас пока нет заказов.</p>
+    {% endif %}
+
+    <a href="{% url 'logout' %}">Выйти</a>
+{% endblock %}
