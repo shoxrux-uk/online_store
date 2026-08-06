@@ -1,17 +1,27 @@
 {% extends 'shop/base.html' %}
+{% load custom_filters %}
 
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-    <a href="{% url 'category_detail' product.category.slug %}">← Назад к категории</a>
+    <a href="{% url 'category_detail' product.category.slug %}" style="font-size: 14px; color: #ff6600; text-decoration: none;">← Назад к категории</a>
     
-    <h1>{{ product.name }}</h1>
+    <h1 style="font-size: 26px; margin: 10px 0 15px;">{{ product.name }}</h1>
     
-    {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 400px;">
-    {% endif %}
+    <!-- ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ -->
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
+        {% if product.images.all %}
+            {% for img in product.images.all %}
+                <img src="{{ img.image.url }}" alt="{{ product.name }}" class="product-thumbnail" data-main="{% if img.is_main %}true{% else %}false{% endif %}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer;">
+            {% endfor %}
+        {% elif product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 400px; border-radius: 10px;">
+        {% else %}
+            <div style="width: 100%; height: 200px; background: #f0f0f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">Нет фото</div>
+        {% endif %}
+    </div>
     
-    <p><strong>Цена:</strong> {{ product.price }} usd.</p>
+    <p><strong>Цена:</strong> <span style="font-size: 22px; color: #ff6600; font-weight: bold;">{{ product.price|sum_format }}</span></p>
     <p><strong>Описание:</strong> {{ product.description }}</p>
     <p><strong>Категория:</strong> {{ product.category.name }}</p>
     <p><strong>В наличии:</strong> {% if product.in_stock %} Да ✅ {% else %} Нет ❌ {% endif %}</p>
@@ -19,6 +29,7 @@
     <form method="post" action="{% url 'add_to_cart' product.slug %}">
         {% csrf_token %}
         
+        <!-- ЦВЕТА -->
         {% if product.colors.all %}
             <div style="margin: 15px 0;">
                 <label><strong>Цвет:</strong></label><br>
@@ -34,19 +45,58 @@
             </div>
         {% endif %}
         
-        <button type="submit" style="background: #ff6600; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-            🛒 Добавить в корзину
-        </button>
+        <!-- РАЗМЕРЫ -->
+        {% if product.sizes.all %}
+            <div style="margin: 15px 0;">
+                <label><strong>Размер:</strong></label><br>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
+                    {% for size in product.sizes.all %}
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <input type="radio" name="size" value="{{ size.id }}" required>
+                            <span style="display: inline-block; padding: 5px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px;">
+                                {{ size.name }}
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- КНОПКИ ВНИЗУ -->
+        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="submit" style="background: #ff6600; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
+                🛒 Добавить в корзину
+            </button>
+            <a href="{% url 'cart_view' %}" style="background: #28a745; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold;">
+                🛍️ Перейти в корзину
+            </a>
+        </div>
     </form>
-    <br>
-    <a href="{% url 'cart_view' %}">🛍️ Перейти в корзину</a>
+
+    <style>
+        .product-thumbnail {
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .product-thumbnail[data-main="true"] {
+            border-color: #ff6600;
+        }
+        .product-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .color-circle {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+        }
+    </style>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Устанавливаем цвет для кружков
-            document.querySelectorAll('.color-circle').forEach(function(el) {
-                el.style.backgroundColor = el.getAttribute('data-color');
-            });
+        document.querySelectorAll('.color-circle').forEach(function(el) {
+            el.style.backgroundColor = el.getAttribute('data-color');
         });
     </script>
 {% endblock %}

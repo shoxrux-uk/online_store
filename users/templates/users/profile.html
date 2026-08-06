@@ -1,21 +1,82 @@
 {% extends 'shop/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Личный кабинет{% endblock %}
 
 {% block content %}
-    <h2>Привет, {{ user.username }}!</h2>
-    <p>Email: {{ user.email }}</p>
+<div style="max-width: 900px; margin: 0 auto;">
+    <h2 style="text-align: center; margin-bottom: 30px;">👤 Личный кабинет</h2>
 
-    <h3>Мои заказы</h3>
-    {% if orders %}
-        <ul>
-            {% for order in orders %}
-                <li>Заказ #{{ order.id }} — {{ order.created_at|date:"d.m.Y H:i" }} — {{ order.total_price }} usd.</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>У вас пока нет заказов.</p>
-    {% endif %}
+    <!-- ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ -->
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 25px;">
+        <p><strong>Имя:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y" }}</p>
+        </div>
 
-    <a href="{% url 'logout' %}">Выйти</a>
+    <!-- СТАТИСТИКА -->
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px;">
+        <div style="flex: 1; min-width: 100px; background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div style="font-size: 24px; font-weight: bold; color: #333;">{{ total_orders }}</div>
+            <div style="color: #888;">📦 Заказов</div>
+        </div>
+        <div style="flex: 1; min-width: 100px; background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div style="font-size: 24px; font-weight: bold; color: #ff6600;">
+                {{ total_spent|sum_format|default:"0 so'm" }}
+            </div>
+            <div style="color: #888;">💰 Потрачено</div>
+        </div>
+    </div>
+
+    <!-- ЗАКАЗЫ -->
+    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h3 style="margin: 0 0 15px 0;">📋 Мои заказы</h3>
+        
+        {% if orders %}
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #eee;">
+                        <th style="padding: 10px; text-align: left;">№</th>
+                        <th style="padding: 10px; text-align: left;">Дата</th>
+                        <th style="padding: 10px; text-align: left;">Сумма</th>
+                        <th style="padding: 10px; text-align: left;">Оплата</th>
+                        <th style="padding: 10px; text-align: left;">Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 10px;">#{{ order.id }}</td>
+                            <td style="padding: 10px;">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                            <td style="padding: 10px; font-weight: bold; color: #ff6600;">{{ order.total_price|sum_format }}</td>
+                            <td style="padding: 10px;">
+                                {% if order.payment_method == 'card' %}💳 Карта
+                                {% elif order.payment_method == 'installment' %}📱 Рассрочка
+                                {% else %}📦 При получении
+                                {% endif %}
+                            </td>
+                            <td style="padding: 10px;">
+                                {% if order.status == 'pending' %}
+                                    <span style="background: #ffc107; padding: 3px 12px; border-radius: 12px; font-size: 12px;">⏳ В обработке</span>
+                                {% elif order.status == 'confirmed' %}
+                                    <span style="background: #17a2b8; color: white; padding: 3px 12px; border-radius: 12px; font-size: 12px;">✅ Подтверждён</span>
+                                {% elif order.status == 'shipped' %}
+                                    <span style="background: #007bff; color: white; padding: 3px 12px; border-radius: 12px; font-size: 12px;">🚚 Отправлен</span>
+                                {% elif order.status == 'delivered' %}
+                                    <span style="background: #28a745; color: white; padding: 3px 12px; border-radius: 12px; font-size: 12px;">📦 Доставлен</span>
+                                {% elif order.status == 'cancelled' %}
+                                    <span style="background: #dc3545; color: white; padding: 3px 12px; border-radius: 12px; font-size: 12px;">❌ Отменён</span>
+                                {% else %}
+                                    <span style="background: #6c757d; color: white; padding: 3px 12px; border-radius: 12px; font-size: 12px;">{{ order.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="text-align: center; color: #888; padding: 30px 0;">У вас пока нет заказов</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

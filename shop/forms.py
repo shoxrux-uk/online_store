@@ -14,17 +14,12 @@ class OrderForm(forms.ModelForm):
         fields = ['full_name', 'address', 'phone', 'email', 'payment_method', 
                   'card_number', 'card_expiry', 'installment_months']
         widgets = {
-            'full_name': forms.TextInput(attrs={'placeholder': 'Иванов Иван Иванович'}),
-            'address': forms.Textarea(attrs={'placeholder': 'г. Ташкент, ул. Примерная, д. 1', 'rows': 3}),
-            'phone': forms.TextInput(attrs={'placeholder': '+998 90 123 45 67'}),
-            'email': forms.EmailInput(attrs={'placeholder': 'ivan@example.com'}),
+            'full_name': forms.TextInput(attrs={'placeholder': 'Иванов Иван Иванович', 'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;'}),
+            'address': forms.Textarea(attrs={'placeholder': 'г. Ташкент, ул. Примерная, д. 1', 'rows': 3, 'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;'}),
+            'phone': forms.TextInput(attrs={'placeholder': '+998 90 123 45 67', 'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'ivan@example.com', 'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;'}),
             'payment_method': forms.RadioSelect(),
-            'card_number': forms.TextInput(attrs={'placeholder': '1234 5678 9012 3456', 'maxlength': '19'}),
-            'card_expiry': forms.TextInput(attrs={'placeholder': 'MM/YY', 'maxlength': '5'}),
+            'card_number': forms.TextInput(attrs={'placeholder': '1234 5678 9012 3456', 'maxlength': '19', 'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;'}),
+            'card_expiry': forms.TextInput(attrs={'placeholder': 'MM/YY', 'maxlength': '5', 'style': 'width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;'}),
             'installment_months': forms.Select(),
-        }
-        labels = {
-            'card_number': 'Номер карты',
-            'card_expiry': 'Срок действия (MM/YY)',
-            'installment_months': 'Срок рассрочки',
         }

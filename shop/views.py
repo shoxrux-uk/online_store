@@ -106,6 +106,8 @@ def checkout_view(request):
             
             order = form.save(commit=False)
             order.total_price = final_total
+            order.user = request.user
+            order.status = 'pending'  # ← статус по умолчанию
             order.save()
             
             for item in cart.items.all():
@@ -114,7 +116,8 @@ def checkout_view(request):
                     product=item.product,
                     quantity=item.quantity,
                     price=item.product.price,
-                    color=item.color
+                    color=item.color,
+                    size=item.size
                 )
             
             cart.items.all().delete()

@@ -21,7 +21,6 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        print(f"Попытка входа: {username} / {password}") 
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
@@ -34,9 +33,17 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.info(request, 'Вы вышли из системы')
-    return redirect('/')
+    return redirect('product_list')
 
 @login_required
 def profile(request):
-    orders = Order.objects.filter(is_completed=True).order_by('-created_at')
-    return render(request, 'users/profile.html', {'orders': orders})
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    
+    total_orders = orders.count()
+    total_spent = sum(order.total_price for order in orders)
+    
+    return render(request, 'users/profile.html', {
+        'orders': orders,
+        'total_orders': total_orders,
+        'total_spent': total_spent,
+    })

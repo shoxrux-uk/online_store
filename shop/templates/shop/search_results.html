@@ -1,24 +1,35 @@
 {% extends 'shop/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Поиск: {{ query }}{% endblock %}
 
 {% block content %}
-    <h1>🔍 Результаты поиска: "{{ query }}"</h1>
+    <h1 style="font-size: 20px; margin: 8px 0 12px;">🔍 Результаты поиска: "{{ query }}"</h1>
 
     {% if products %}
-        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
             {% for product in products %}
-                <div style="border: 1px solid #ddd; padding: 15px; width: 250px; background: white;">
+                <div style="border: 1px solid #ddd; padding: 10px; width: 180px; background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; flex-direction: column; justify-content: space-between; min-height: 260px;">
                     {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 4px;">
+                    {% else %}
+                        <div style="width: 100%; height: 140px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">Нет фото</div>
                     {% endif %}
-                    <h3>
-                        <a href="{% url 'product_detail' product.slug %}">
+                    
+                    <h3 style="font-size: 13px; margin: 6px 0 3px; min-height: 32px; line-height: 1.2;">
+                        <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: #333;">
                             {{ product.name }}
                         </a>
                     </h3>
-                    <p>Цена: {{ product.price }} usd.</p>
-                    <a href="{% url 'add_to_cart' product.slug %}">🛒 Добавить в корзину</a>
+                    
+                    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-size: 14px; font-weight: bold; color: #ff6600; text-align: center;">
+                            {{ product.price|sum_format }}
+                        </span>
+                        <a href="{% url 'product_detail' product.slug %}" style="background: #28a745; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; text-align: center; display: block;">
+                            🛒 В корзину
+                        </a>
+                    </div>
                 </div>
             {% endfor %}
         </div>
